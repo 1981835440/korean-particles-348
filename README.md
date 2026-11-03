@@ -73,9 +73,15 @@ src/                         题库与生成脚本
   build.js                   生成 Word 版
 ```
 
-## 云端同步（可选，Supabase）
+## 云端同步（已接 Supabase）
 
-不配置时一切仍是纯本地，不影响使用。配置后：登录 → 每题作答自动入库 → 换设备登录即可恢复错题本。
+当前仓库里的 `config.js` 已填好项目地址与 publishable key，打开网页 → 目录·统计 → 云端同步 → 注册即可用。
+不配置时（清空 `config.js`）一切仍是纯本地，不影响刷题。
+
+登录后：每题提交自动入库 → 换设备登录即可恢复错题本。
+
+> 注意：Supabase 默认要求**点邮件确认链接**后才能登录（`mailer_autoconfirm=false`）。
+> 想省掉这一步：Authentication → Sign In / Providers → Email → 关掉 Confirm email。
 
 1. 注册 <https://supabase.com>，新建 Project（区域选 Singapore / Tokyo 延迟更低），记下数据库密码。
 2. 打开 **SQL Editor**，把 [`supabase/schema.sql`](supabase/schema.sql) 全文粘进去执行。它会建 `attempts` 表、开启 RLS（每人只能读写自己的行）、并建 `wrong_book` 错题视图。
