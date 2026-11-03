@@ -1,0 +1,13 @@
+{
+  "name": "korean-particles-348",
+  "private": true,
+  "description": "韩国语助词 348 题题库与生成脚本",
+  "scripts": {
+    "check": "node check.js",
+    "build:html": "node build_html.js",
+    "build:docx": "node build.js"
+  },
+  "dependencies": {
+    "docx": "^8.5.0"
+  }
+}
