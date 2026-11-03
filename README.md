@@ -47,7 +47,8 @@
 - 手机优先：点下面助词卡片拼答案，两个空按顺序点两次
 - 即时判分：正确变绿、错误标红并给出正确答案
 - 判分后显示「解析 / 特殊情况 / 日常常用 / 译文」
-- 进度与错题存在浏览器本地（localStorage），可“只重做错题”
+- 进度与错题默认存在浏览器本地（localStorage），可“只重做错题”
+- 可选云端同步：登录后每题自动上传，换设备可恢复错题本（见下文配置）
 - 「导出我的答案」一键复制全部作答，方便发给老师或 AI 批改
 - 目录面板可跳专题、看每个专题的正确数
 
@@ -55,6 +56,8 @@
 
 ```
 index.html                 手机点选版（GitHub Pages 入口）
+config.js                  云端配置：填 Supabase 的 url / anonKey 即启用同步
+supabase/schema.sql         云端建表脚本（attempts 表 + RLS + 错题视图）
 assets/
   korean-particles-348.docx  Word 版：题目 + 每 40 题一轮答案解析
   questions-348.txt          纯文本版：裸填空清单 + 参考答案
@@ -65,9 +68,41 @@ src/                         题库与生成脚本
   glossFix.js / inject.js    中文词义括注（手工补注 + 自动补注）
   bank.js                    题库装载：修正 → 插题 → 重排题号 → 补词义
   check.js                   结构校验 + 받침（收音）与助词一致性校验
+  cloud_block.js             网页里的云端同步模块（登录/上传/拉取）
   build_html.js              生成 index.html 与纯文本清单
   build.js                   生成 Word 版
 ```
+
+## 云端同步（可选，Supabase）
+
+不配置时一切仍是纯本地，不影响使用。配置后：登录 → 每题作答自动入库 → 换设备登录即可恢复错题本。
+
+1. 注册 <https://supabase.com>，新建 Project（区域选 Singapore / Tokyo 延迟更低），记下数据库密码。
+2. 打开 **SQL Editor**，把 [`supabase/schema.sql`](supabase/schema.sql) 全文粘进去执行。它会建 `attempts` 表、开启 RLS（每人只能读写自己的行）、并建 `wrong_book` 错题视图。
+3. **Project Settings → API** 复制两个值：
+   - `Project URL`（`https://xxxx.supabase.co`）
+   - `anon` / `publishable` key
+4. 填进 [`config.js`](config.js)：
+
+```js
+window.CLOUD_CONFIG = {
+  provider: 'supabase',
+  url: 'https://xxxx.supabase.co',
+  anonKey: 'eyJhbGciOi...',
+  table: 'attempts'
+};
+```
+
+5. 建议关掉邮箱确认（省一步）：**Authentication → Sign In / Providers → Email → Confirm email** 关掉。开着也能用，注册后去邮箱点确认链接再登录。
+6. 打开网页 → 右上角「目录·统计」→ 底部「云端同步」→ 注册 / 登录。
+
+`anonKey` 是公开信息，可以放在仓库里；权限由第 2 步的 RLS 策略兜底，别人拿到 key 也读不到你的记录。
+
+### 绑定自己的域名
+
+1. 域名商处加一条 CNAME：`kr` → `1981835440.github.io`（换成你的仓库地址）。
+2. GitHub 仓库 **Settings → Pages → Custom domain** 填入 `kr.你的域名`，勾选 Enforce HTTPS。
+3. 等证书签发（几分钟到半小时）。Supabase 侧不用改配置——邮箱密码登录不校验来源域名；只有以后加微信/Google 登录时才需要在 **Authentication → URL Configuration** 里补 Redirect URL。
 
 ## 本地使用 / 重新生成
 
