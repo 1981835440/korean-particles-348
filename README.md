@@ -2,7 +2,8 @@
 
 一套可点选的韩语助词（조사）专项题库：**348 道裸填空题**，16 个专题，每题带中文词义、解析、译文，新增题另附 **特殊情况** 与 **日常常用** 两行说明。
 
-- 在线练习（GitHub Pages）：<https://1981835440.github.io/korean-particles-348/>
+- 在线练习（主站）：<https://020527.xyz/>
+- 在线练习（GitHub Pages 备份）：<https://1981835440.github.io/korean-particles-348/>
 - Word 版（含答案解析）：[`assets/korean-particles-348.docx`](assets/korean-particles-348.docx)
 - 纯文本版（复制到聊天里作答）：[`assets/questions-348.txt`](assets/questions-348.txt)
 
@@ -154,13 +155,18 @@ node build.js        # 生成 Word 版
 目录结构与仓库 `deploy/` 一致：`index.html`、`config.js`、`assets/`、`supabase/schema.sql`、`src/`。
 Nginx 已开启 gzip、静态资源缓存，并禁止访问隐藏文件。
 
-**仍待完成（需在域名商处操作）**：`020527.xyz` 当前 A 记录指向 Spaceship 停放页，
-NS 为 `launch1/2.spaceship.net`。需要在 Spaceship 后台把 `@` 与 `www` 的 A 记录改为 `43.251.227.182`，
-生效后执行：
+**已完成**：`020527.xyz` 与 `www.020527.xyz` 的 A 记录均指向 `43.251.227.182`（NS 仍为
+`launch1/2.spaceship.net`）。HTTPS 证书已签发并部署（Let's Encrypt，SAN 含两个域名，
+有效期至 2027-02-03），HTTP 自动 301 跳转到 HTTPS，`certbot renew --dry-run` 演练通过。
+
+正式地址：<https://020527.xyz/>（备用 IP 访问 <http://43.251.227.182/>）。
+从外部网络与浏览器实测：348 题全部加载、云端同步登录表单正常、静态资源 200、0 个 JS 错误。
+
+如需手工重签（正常情况下不需要）：
 
 ```bash
 ssh root@43.251.227.182
-/root/enable-https.sh      # 自动检查解析、用 certbot 签发证书并强制跳转 HTTPS
+/root/enable-https.sh      # 检查解析后重签证书
 ```
 
 **自动完成**：服务器上已挂 `/root/auto-https.sh`（cron 每 3 分钟，`/etc/cron.d/auto-https`）。
