@@ -163,6 +163,12 @@ ssh root@43.251.227.182
 /root/enable-https.sh      # 自动检查解析、用 certbot 签发证书并强制跳转 HTTPS
 ```
 
+**自动完成**：服务器上已挂 `/root/auto-https.sh`（cron 每 3 分钟，`/etc/cron.d/auto-https`）。
+它会用公共 DNS（1.1.1.1 / 8.8.8.8）检测 A 记录，一旦指向 `43.251.227.182` 就自动执行
+`certbot --nginx` 签发证书并强制跳转 HTTPS，成功后自行删除定时任务。因此 DNS 改完无需再人工通知，
+日志见 `/var/log/auto-https.log`。失败会冷却 30 分钟后重试，避免触发 Let's Encrypt 限流。
+
+Nginx 已单独放行 `/.well-known/acme-challenge/`（HTTP-01 验证用），其余点开头的隐藏路径仍返回 403。
 证书自动续期由 `certbot.timer` 负责（已启用）。HTTP 阶段可先用 `http://43.251.227.182/` 访问。
 Supabase 的邮箱密码登录不校验来源域名，因此换域名无需改动 `config.js`；
 若以后启用 OAuth 登录，再到 Supabase → Authentication → URL Configuration 补 Redirect URL。
