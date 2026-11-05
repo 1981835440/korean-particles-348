@@ -137,3 +137,37 @@ node build.js        # 生成 Word 版
 ## 说明
 
 题目用于自学与教学，解析里的语法判断按标准韩国语（표준어）。若你觉得某题“另一个答案也说得通”，多半是语用差异，欢迎开 Issue 讨论。
+
+## 自有服务器部署（43.251.227.182）
+
+站点已部署到 Ubuntu 24.04 + Nginx 的自有服务器，与 GitHub Pages 版内容一致、共用同一个 Supabase 后端。
+
+| 项 | 值 |
+|---|---|
+| 服务器 | `43.251.227.182`（SSH 22） |
+| 域名 | `020527.xyz`（另配 `www.020527.xyz`） |
+| 站点根目录 | `/var/www/korean-particles` |
+| Nginx 配置 | `/etc/nginx/sites-available/korean-particles` |
+| HTTPS 一键脚本 | `/root/enable-https.sh`（DNS 生效后执行） |
+| 日志 | `/var/log/nginx/korean-particles.{access,error}.log` |
+
+目录结构与仓库 `deploy/` 一致：`index.html`、`config.js`、`assets/`、`supabase/schema.sql`、`src/`。
+Nginx 已开启 gzip、静态资源缓存，并禁止访问隐藏文件。
+
+**仍待完成（需在域名商处操作）**：`020527.xyz` 当前 A 记录指向 Spaceship 停放页，
+NS 为 `launch1/2.spaceship.net`。需要在 Spaceship 后台把 `@` 与 `www` 的 A 记录改为 `43.251.227.182`，
+生效后执行：
+
+```bash
+ssh root@43.251.227.182
+/root/enable-https.sh      # 自动检查解析、用 certbot 签发证书并强制跳转 HTTPS
+```
+
+证书自动续期由 `certbot.timer` 负责（已启用）。HTTP 阶段可先用 `http://43.251.227.182/` 访问。
+Supabase 的邮箱密码登录不校验来源域名，因此换域名无需改动 `config.js`；
+若以后启用 OAuth 登录，再到 Supabase → Authentication → URL Configuration 补 Redirect URL。
+
+### 重新同步文件
+
+修改了仓库内容后，把 `deploy/` 下的文件重新上传到 `/var/www/korean-particles/` 对应路径即可，
+Nginx 无需重启（静态文件即时生效）。
